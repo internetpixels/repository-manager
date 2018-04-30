@@ -62,12 +62,11 @@ abstract class AbstractRepository
     }
 
     /**
-     * Read from a table in a given entity.
+     * Read from a table.
      *
-     * @param AbstractEntity|EntityInterface $entity
      * @return array
      */
-    public function read(AbstractEntity $entity)
+    public function read()
     {
         $query = $this->queryBuilder->new($this->entityName)
             ->select()
