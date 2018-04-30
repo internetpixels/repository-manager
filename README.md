@@ -59,7 +59,7 @@ The entity will contain the data for a specific object (Also known as DAO) and w
         /**
          * @param int $age
          */
-        public function setName(int $age)
+        public function setAge(int $age)
         {
             $this->age = $age;
         }
