@@ -13,24 +13,14 @@ use PHPUnit\Framework\TestCase;
 class RepositoryManagerTest extends TestCase
 {
 
-    /**
-     * @var EntityFactory
-     */
-    private $entityFactory;
-
-    public function setUp()
-    {
-        $this->entityFactory = new EntityFactory();
-    }
-
     public function testRegisterEntity()
     {
         $fakeEntity = new FakeEntity();
 
-        $this->entityFactory->register('fake', $fakeEntity);
+        EntityFactory::register('fake', $fakeEntity);
 
         /** @var FakeEntity $entity */
-        $entity = $this->entityFactory->create('fake');
+        $entity = EntityFactory::create('fake');
         $entity->setId(1);
         $entity->setAge(25);
 
@@ -41,11 +31,11 @@ class RepositoryManagerTest extends TestCase
 
     /**
      * @expectedException \Exception
-     * @expectedExceptionMessage Entity is not registered!
+     * @expectedExceptionMessage Entity (fake_new) is not registered!
      */
     public function testRegisterEntity_WITH_exception()
     {
-        $this->assertInstanceOf(FakeEntity::class, $this->entityFactory->create('fake'));
+        $this->assertInstanceOf(FakeEntity::class, EntityFactory::create('fake_new'));
     }
 
     /**
@@ -56,7 +46,7 @@ class RepositoryManagerTest extends TestCase
     {
         $fakeEntity = new \stdClass();
 
-        $this->entityFactory->register('fake', $fakeEntity);
+        EntityFactory::register('fake', $fakeEntity);
     }
 
 

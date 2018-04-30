@@ -15,7 +15,7 @@ class EntityFactory
     /**
      * @var array
      */
-    private $entities = [];
+    private static $entities = [];
 
     /**
      * Register a new entity
@@ -24,13 +24,17 @@ class EntityFactory
      * @param EntityInterface $entity
      * @throws \Exception
      */
-    public function register(string $name, EntityInterface $entity)
+    public static function register(string $name, EntityInterface $entity)
     {
-        if (isset($this->entities[$name])) {
+        if (isset(self::$entities[$name])) {
             throw new \Exception('Entity already exists!');
         }
 
-        $this->entities[$name] = $entity;
+        if (!$entity instanceof EntityInterface) {
+            throw new \Exception('Entity is not implementing the EntityInterface!');
+        }
+
+        self::$entities[$name] = $entity;
     }
 
     /**
@@ -40,10 +44,10 @@ class EntityFactory
      * @return EntityInterface
      * @throws \Exception
      */
-    public function create($name)
+    public static function create($name)
     {
-        if ($this->exists($name) === true) {
-            return clone $this->entities[$name];
+        if (self::exists($name) === true) {
+            return clone self::$entities[$name];
         }
 
     }
@@ -55,10 +59,10 @@ class EntityFactory
      * @return bool
      * @throws \Exception
      */
-    public function exists($entityName)
+    public static function exists($entityName)
     {
-        if (!isset($this->entities[$entityName])) {
-            throw new \Exception('Entity is not registered!');
+        if (!isset(self::$entities[$entityName])) {
+            throw new \Exception(sprintf('Entity (%s) is not registered!', $entityName));
         }
 
         return true;
@@ -69,7 +73,7 @@ class EntityFactory
      *
      * @return QueryBuilder
      */
-    public function createQueryBuilder()
+    public static function createQueryBuilder()
     {
         return new QueryBuilder();
     }

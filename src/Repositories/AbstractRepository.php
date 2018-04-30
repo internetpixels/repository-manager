@@ -3,6 +3,7 @@
 namespace InternetPixels\RepositoryManager\Repositories;
 
 use InternetPixels\RepositoryManager\Builder\QueryBuilder;
+use InternetPixels\RepositoryManager\Entities\AbstractEntity;
 use InternetPixels\RepositoryManager\Entities\EntityInterface;
 use InternetPixels\RepositoryManager\Factories\EntityFactory;
 use InternetPixels\RepositoryManager\Managers\RepositoryDataManager;
@@ -17,12 +18,7 @@ abstract class AbstractRepository
     /**
      * @var RepositoryDataManager
      */
-    private $dataManager;
-
-    /**
-     * @var EntityFactory
-     */
-    private $entityFactory;
+    protected $dataManager;
 
     /**
      * @var string
@@ -38,31 +34,29 @@ abstract class AbstractRepository
      * AbstractRepository constructor.
      *
      * @param RepositoryDataManager $dataManager
-     * @param EntityFactory $entityFactory
      * @throws \Exception
      */
-    public function __construct(RepositoryDataManager $dataManager, EntityFactory $entityFactory)
+    public function __construct(RepositoryDataManager $dataManager)
     {
         $this->dataManager = $dataManager;
-        $this->entityFactory = $entityFactory;
 
         // Validate that the entity exists in our entity manger
-        if ($this->entityFactory->exists($this->entityName) !== true) {
-            throw new \Exception('Entity is not registered!');
+        if (EntityFactory::exists($this->entityName) !== true) {
+            throw new \Exception(sprintf('Entity (%s) is not registered!', $this->entityName));
         }
 
         if (!$this->queryBuilder instanceof QueryBuilder) {
-            $this->queryBuilder = $this->entityFactory->createQueryBuilder();
+            $this->queryBuilder = EntityFactory::createQueryBuilder();
         }
     }
 
     /**
      * Update a given entity in a table.
      *
-     * @param EntityInterface $entity
+     * @param AbstractEntity|EntityInterface $entity
      * @throws \Exception
      */
-    public function create(EntityInterface $entity)
+    public function create(AbstractEntity $entity)
     {
         throw new \Exception('Please override this method in your own repository');
     }
@@ -70,10 +64,10 @@ abstract class AbstractRepository
     /**
      * Read from a table in a given entity.
      *
-     * @param EntityInterface $entity
+     * @param AbstractEntity|EntityInterface $entity
      * @return array
      */
-    public function read(EntityInterface $entity)
+    public function read(AbstractEntity $entity)
     {
         $query = $this->queryBuilder->new($this->entityName)
             ->select()
@@ -85,10 +79,10 @@ abstract class AbstractRepository
     /**
      * Update a given entity in a table.
      *
-     * @param EntityInterface $entity
+     * @param AbstractEntity|EntityInterface $entity
      * @throws \Exception
      */
-    public function update(EntityInterface $entity)
+    public function update(AbstractEntity $entity)
     {
         throw new \Exception('Please override this method in your own repository');
     }
@@ -96,27 +90,39 @@ abstract class AbstractRepository
     /**
      * Delete an entity given by an id.
      *
-     * @param EntityInterface $entity
+     * @param AbstractEntity|EntityInterface $entity
      * @return bool
      */
-    public function delete(EntityInterface $entity)
+    public function delete(AbstractEntity $entity)
     {
-        $query = $this->queryBuilder->new()
-            ->delete($this->entityName)
+        $query = $this->queryBuilder->new($this->entityName)
+            ->delete()
             ->where(['id' => $this->dataManager->sanitize($entity->getId(), 'integer')])
             ->limit(1)
             ->get();
 
-        if ($this->dataManager->query($query) !== false) {
-            return true;
-        }
-
-        return false;
+        return $this->executeQuery($query);
     }
 
     /**
      * @param $query
-     * @return array
+     * @return bool
+     * @throws \Exception
+     */
+    protected function executeQuery($query)
+    {
+        $result = $this->dataManager->query($query);
+
+        if ($result === false) {
+            throw new \Exception(sprintf('Query (%s) not executed for (%s)', $query, $this->entityName));
+        }
+
+        return true;
+    }
+
+    /**
+     * @param $query
+     * @return EntityInterface
      * @throws \Exception
      */
     protected function executeQueryForSingleResult($query)
@@ -127,7 +133,7 @@ abstract class AbstractRepository
             throw new \Exception(sprintf('Record not found in %s', $this->entityName));
         }
 
-        return $result->fetch_array();
+        return $this->dataToEntity($result->fetch_array());
     }
 
     /**
@@ -142,16 +148,26 @@ abstract class AbstractRepository
         $result = $this->dataManager->query($query);
 
         if ($result === false || $result->num_rows === 0) {
-            throw new \Exception(sprintf('Record not found in %s', $this->entityName));
+            throw new \Exception(sprintf('Record not found in %s with query "%s"', $this->entityName, $query));
         }
 
         $items = [];
 
         while ($item = $result->fetch_assoc()) {
-            $items[] = $item;
+            $items[] = $this->dataToEntity($item);
         }
 
         return $items;
+    }
+
+    /**
+     * @param array $data
+     * @return EntityInterface
+     * @throws \Exception
+     */
+    protected function dataToEntity(array $data)
+    {
+        throw new \Exception('Please override this method in your own repository');
     }
 
 }

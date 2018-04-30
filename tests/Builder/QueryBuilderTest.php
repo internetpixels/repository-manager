@@ -22,7 +22,38 @@ class QueryBuilderTest extends TestCase
         $this->builder = new QueryBuilder();
     }
 
-    public function testDeleteQueryWithWhereCondition()
+    public function testUpdateQuery_WITH_WhereCondition()
+    {
+        $query = $this->builder->new('update_table')
+            ->update([
+                'name' => 'Test name',
+                'age' => 25,
+            ])
+            ->where(['id' => 1])
+            ->get();
+
+        $expected = 'UPDATE update_table SET name = "Test name", age = 25 WHERE id = 1';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testUpdateQuery_WITH_WhereCondition_AND_limit()
+    {
+        $query = $this->builder->new('update_table')
+            ->update([
+                'name' => 'Test name',
+                'age' => 25,
+            ])
+            ->where(['id' => 1])
+            ->limit(1)
+            ->get();
+
+        $expected = 'UPDATE update_table SET name = "Test name", age = 25 WHERE id = 1 LIMIT 1';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testDeleteQuery_WITH_WhereCondition()
     {
         $query = $this->builder->new('test_table')
             ->delete()

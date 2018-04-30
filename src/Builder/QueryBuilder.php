@@ -76,7 +76,7 @@ class QueryBuilder
         $values = array_values($parameters);
 
         foreach ($values as $key => $value) {
-            if (is_string($value)) {
+            if (is_string($value) || is_float($value)) {
                 $values[$key] = '"' . $value . '"';
             }
         }
@@ -85,6 +85,34 @@ class QueryBuilder
             $this->tableName,
             implode(', ', $fields),
             implode(', ', $values)
+        );
+
+        return $this;
+    }
+
+    /**
+     * Build the update query with given parameters.
+     *
+     * Important: Make sure that the values are sanitized before using this method!
+     *
+     * @param array $parameters
+     * @return $this
+     */
+    public function update(array $parameters)
+    {
+        $update = [];
+
+        foreach ($parameters as $field => $value) {
+            if (is_string($value) || is_float($value)) {
+                $update[] = $field . ' = "' . $value . '"';
+            } else {
+                $update[] = $field . ' = ' . $value;
+            }
+        }
+
+        $this->query .= sprintf('UPDATE %s SET %s',
+            $this->tableName,
+            implode(', ', $update)
         );
 
         return $this;
