@@ -103,7 +103,9 @@ class QueryBuilder
         $update = [];
 
         foreach ($parameters as $field => $value) {
-            if (is_string($value) || is_float($value)) {
+            if ($value === null) {
+                $update[] = $field . ' = NULL';
+            } elseif (is_string($value) || is_float($value)) {
                 $update[] = $field . ' = "' . $value . '"';
             } else {
                 $update[] = $field . ' = ' . $value;
