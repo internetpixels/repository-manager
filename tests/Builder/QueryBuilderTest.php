@@ -37,6 +37,22 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testUpdateQuery_WITH_nullValue()
+    {
+        $query = $this->builder->new('update_table')
+            ->update([
+                'name' => 'Test name',
+                'age' => 25,
+                'empty' => null,
+            ])
+            ->where(['id' => 1])
+            ->get();
+
+        $expected = 'UPDATE update_table SET name = "Test name", age = 25, empty = NULL WHERE id = 1';
+
+        $this->assertEquals($expected, $query);
+    }
+
     public function testUpdateQuery_WITH_WhereCondition_AND_limit()
     {
         $query = $this->builder->new('update_table')
