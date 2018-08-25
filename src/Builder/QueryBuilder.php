@@ -148,6 +148,62 @@ class QueryBuilder
     }
 
     /**
+     * Add a an on condition in a query, insert an array with a key => value pair. The key is the column name.
+     *
+     * Important: Make sure that the values are sanitized before using this method!
+     *
+     * @param array $parameters
+     * @return $this
+     */
+    public function on(array $parameters)
+    {
+        $conditions = [];
+
+        foreach ($parameters as $field => $value) {
+            $conditions[] = $field . ' = ' . $value;
+        }
+
+        if (count($conditions) >= 1) {
+            $this->query .= ' ON ' . implode(' AND ', $conditions);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $tableName
+     * @return $this
+     */
+    public function join(string $tableName)
+    {
+        $this->query .= ' JOIN ' . $tableName;
+
+        return $this;
+    }
+
+    /**
+     * @param string $tableName
+     * @return $this
+     */
+    public function leftJoin(string $tableName)
+    {
+        $this->query .= ' LEFT JOIN ' . $tableName;
+
+        return $this;
+    }
+
+    /**
+     * @param string $tableName
+     * @return $this
+     */
+    public function rightJoin(string $tableName)
+    {
+        $this->query .= ' RIGHT JOIN ' . $tableName;
+
+        return $this;
+    }
+
+    /**
      * Order a query by field name and direction.
      *
      * @param string $field
