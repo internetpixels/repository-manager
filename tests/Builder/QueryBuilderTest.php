@@ -93,7 +93,7 @@ class QueryBuilderTest extends TestCase
             ->limit(1)
             ->get();
 
-        $expected = 'DELETE FROM test_table WHERE id = 1 AND column = NULL LIMIT 1';
+        $expected = 'DELETE FROM test_table WHERE id = 1 AND column IS NULL LIMIT 1';
 
         $this->assertEquals($expected, $query);
     }
