@@ -134,7 +134,7 @@ class QueryBuilder
 
         foreach ($parameters as $field => $value) {
             if (is_null($value)) {
-                $conditions[] = $field . ' = NULL';
+                $conditions[] = $field . ' IS NULL';
             } elseif (is_int($value)) {
                 $conditions[] = $field . ' = ' . $value;
             } else {
@@ -163,7 +163,7 @@ class QueryBuilder
 
         foreach ($parameters as $field => $value) {
             if (is_null($value)) {
-                $conditions[] = $field . ' = NULL';
+                $conditions[] = $field . ' IS NULL';
             } else {
                 $conditions[] = $field . ' = ' . $value;
             }
