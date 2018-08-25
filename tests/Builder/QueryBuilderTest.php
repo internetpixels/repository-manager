@@ -82,6 +82,22 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testDeleteQuery_WITH_WhereCondition_AND_nullValue()
+    {
+        $query = $this->builder->new('test_table')
+            ->delete()
+            ->where([
+                'id' => 1,
+                'column' => null,
+            ])
+            ->limit(1)
+            ->get();
+
+        $expected = 'DELETE FROM test_table WHERE id = 1 AND column = NULL LIMIT 1';
+
+        $this->assertEquals($expected, $query);
+    }
+
     public function testInsertQuery()
     {
         $query = $this->builder->new('test_table_insert')
