@@ -154,4 +154,35 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testSelectQuery_WITH_jeftJoin()
+    {
+        $query = $this->builder->new('test_table_select')
+            ->select(['test_table_select.*', 'test_join.column'])
+            ->leftJoin('test_join')
+            ->on([
+                'test_join.id' => 'test_table_select.test_join_id',
+            ])
+            ->get();
+
+        $expected = 'SELECT test_table_select.*, test_join.column FROM test_table_select LEFT JOIN test_join ON test_join.id = test_table_select.test_join_id';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testSelectQuery_WITH_jeftJoin_AND_onCondition()
+    {
+        $query = $this->builder->new('test_table_select')
+            ->select(['test_table_select.*', 'test_join.column'])
+            ->leftJoin('test_join')
+            ->on([
+                'test_join.id' => 'test_table_select.test_join_id',
+                'test_join.status' => 20,
+            ])
+            ->get();
+
+        $expected = 'SELECT test_table_select.*, test_join.column FROM test_table_select LEFT JOIN test_join ON test_join.id = test_table_select.test_join_id AND test_join.status = 20';
+
+        $this->assertEquals($expected, $query);
+    }
+
 }
