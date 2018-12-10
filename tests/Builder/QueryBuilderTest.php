@@ -201,4 +201,17 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testSelectQuery_WITH_whereIdCondition_AND_limitWithOffset()
+    {
+        $query = $this->builder->new('test_table_select')
+            ->select()
+            ->where(['id' => 1])
+            ->limitWithOffset(5, 2)
+            ->get();
+
+        $expected = 'SELECT * FROM test_table_select WHERE id = 1 LIMIT 5,2';
+
+        $this->assertEquals($expected, $query);
+    }
+
 }
