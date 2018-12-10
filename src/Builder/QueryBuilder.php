@@ -23,9 +23,9 @@ class QueryBuilder
      * Build a new query
      *
      * @param $tableName
-     * @return $this
+     * @return QueryBuilder
      */
-    public function new($tableName)
+    public function new($tableName): QueryBuilder
     {
         $this->query = '';
         $this->tableName = $tableName;
@@ -35,9 +35,9 @@ class QueryBuilder
 
     /**
      * @param array $fields
-     * @return $this
+     * @return QueryBuilder
      */
-    public function select(array $fields = [])
+    public function select(array $fields = []): QueryBuilder
     {
         if (count($fields) === 0) {
             $this->query .= sprintf('SELECT * FROM %s', $this->tableName);
@@ -53,9 +53,9 @@ class QueryBuilder
     /**
      * Delete a row in a given table.
      *
-     * @return $this
+     * @return QueryBuilder
      */
-    public function delete()
+    public function delete(): QueryBuilder
     {
         $this->query .= sprintf('DELETE FROM %s', $this->tableName);
 
@@ -68,9 +68,9 @@ class QueryBuilder
      * Important: Make sure that the values are sanitized before using this method!
      *
      * @param array $parameters
-     * @return $this
+     * @return QueryBuilder
      */
-    public function insert(array $parameters)
+    public function insert(array $parameters): QueryBuilder
     {
         $fields = array_keys($parameters);
         $values = array_values($parameters);
@@ -96,9 +96,9 @@ class QueryBuilder
      * Important: Make sure that the values are sanitized before using this method!
      *
      * @param array $parameters
-     * @return $this
+     * @return QueryBuilder
      */
-    public function update(array $parameters)
+    public function update(array $parameters): QueryBuilder
     {
         $update = [];
 
@@ -126,9 +126,9 @@ class QueryBuilder
      * Important: Make sure that the values are sanitized before using this method!
      *
      * @param array $parameters
-     * @return $this
+     * @return QueryBuilder
      */
-    public function where(array $parameters)
+    public function where(array $parameters): QueryBuilder
     {
         $conditions = [];
 
@@ -155,9 +155,9 @@ class QueryBuilder
      * Important: Make sure that the values are sanitized before using this method!
      *
      * @param array $parameters
-     * @return $this
+     * @return QueryBuilder
      */
-    public function on(array $parameters)
+    public function on(array $parameters): QueryBuilder
     {
         $conditions = [];
 
@@ -178,9 +178,9 @@ class QueryBuilder
 
     /**
      * @param string $tableName
-     * @return $this
+     * @return QueryBuilder
      */
-    public function join(string $tableName)
+    public function join(string $tableName): QueryBuilder
     {
         $this->query .= ' JOIN ' . $tableName;
 
@@ -189,9 +189,9 @@ class QueryBuilder
 
     /**
      * @param string $tableName
-     * @return $this
+     * @return QueryBuilder
      */
-    public function leftJoin(string $tableName)
+    public function leftJoin(string $tableName): QueryBuilder
     {
         $this->query .= ' LEFT JOIN ' . $tableName;
 
@@ -200,9 +200,9 @@ class QueryBuilder
 
     /**
      * @param string $tableName
-     * @return $this
+     * @return QueryBuilder
      */
-    public function rightJoin(string $tableName)
+    public function rightJoin(string $tableName): QueryBuilder
     {
         $this->query .= ' RIGHT JOIN ' . $tableName;
 
@@ -214,9 +214,9 @@ class QueryBuilder
      *
      * @param string $field
      * @param string $direction
-     * @return $this
+     * @return QueryBuilder
      */
-    public function order(string $field, string $direction = 'DESC')
+    public function order(string $field, string $direction = 'DESC'): QueryBuilder
     {
         $direction = strtoupper($direction);
 
@@ -229,11 +229,25 @@ class QueryBuilder
      * Limit the amount of records
      *
      * @param int $limit
-     * @return $this
+     * @return QueryBuilder
      */
-    public function limit(int $limit)
+    public function limit(int $limit): QueryBuilder
     {
         $this->query .= sprintf(' LIMIT %d', $limit);
+
+        return $this;
+    }
+
+    /**
+     * Limit the amount of records with a given offset
+     *
+     * @param int $limit
+     * @param int $offset
+     * @return QueryBuilder
+     */
+    public function limitWithOffset(int $limit, int $offset): QueryBuilder
+    {
+        $this->query .= sprintf(' LIMIT %d,%d', $limit, $offset);
 
         return $this;
     }
@@ -243,7 +257,7 @@ class QueryBuilder
      *
      * @return string
      */
-    public function get()
+    public function get(): string
     {
         return $this->query;
     }

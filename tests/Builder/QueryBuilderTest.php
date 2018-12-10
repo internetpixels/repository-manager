@@ -22,6 +22,20 @@ class QueryBuilderTest extends TestCase
         $this->builder = new QueryBuilder();
     }
 
+    public function testReturnTypeNew()
+    {
+        $query = new QueryBuilder();
+
+        $this->assertInstanceOf(QueryBuilder::class, $query->new('test'));
+    }
+
+    public function testReturnTypeUpdate()
+    {
+        $query = new QueryBuilder();
+
+        $this->assertInstanceOf(QueryBuilder::class, $query->new('test')->update(['test' => 12,]));
+    }
+
     public function testUpdateQuery_WITH_WhereCondition()
     {
         $query = $this->builder->new('update_table')
@@ -197,6 +211,19 @@ class QueryBuilderTest extends TestCase
             ->get();
 
         $expected = 'SELECT test_table_select.*, test_join.column FROM test_table_select LEFT JOIN test_join ON test_join.id = test_table_select.test_join_id AND test_join.status = 20';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testSelectQuery_WITH_whereIdCondition_AND_limitWithOffset()
+    {
+        $query = $this->builder->new('test_table_select')
+            ->select()
+            ->where(['id' => 1])
+            ->limitWithOffset(5, 2)
+            ->get();
+
+        $expected = 'SELECT * FROM test_table_select WHERE id = 1 LIMIT 5,2';
 
         $this->assertEquals($expected, $query);
     }
