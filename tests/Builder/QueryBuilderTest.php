@@ -22,6 +22,20 @@ class QueryBuilderTest extends TestCase
         $this->builder = new QueryBuilder();
     }
 
+    public function testReturnTypeNew()
+    {
+        $query = new QueryBuilder();
+
+        $this->assertInstanceOf(QueryBuilder::class, $query->new('test'));
+    }
+
+    public function testReturnTypeUpdate()
+    {
+        $query = new QueryBuilder();
+
+        $this->assertInstanceOf(QueryBuilder::class, $query->new('test')->update(['test' => 12,]));
+    }
+
     public function testUpdateQuery_WITH_WhereCondition()
     {
         $query = $this->builder->new('update_table')
