@@ -247,7 +247,7 @@ class QueryBuilder
      */
     public function limitWithOffset(int $limit, int $offset): QueryBuilder
     {
-        $this->query .= sprintf(' LIMIT %d,%d', $limit, $offset);
+        $this->query .= sprintf(' LIMIT %d,%d', $offset, $limit);
 
         return $this;
     }

@@ -223,7 +223,7 @@ class QueryBuilderTest extends TestCase
             ->limitWithOffset(5, 2)
             ->get();
 
-        $expected = 'SELECT * FROM test_table_select WHERE id = 1 LIMIT 5,2';
+        $expected = 'SELECT * FROM test_table_select WHERE id = 1 LIMIT 2,5';
 
         $this->assertEquals($expected, $query);
     }
