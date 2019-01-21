@@ -123,6 +123,17 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testInsertQuery_WITH_nullValue()
+    {
+        $query = $this->builder->new('test_table_insert')
+            ->insert(['name' => 'Test name', 'age' => 25, 'test_column' => null])
+            ->get();
+
+        $expected = 'INSERT INTO test_table_insert (name, age, test_column) VALUES ("Test name", 25, NULL)';
+
+        $this->assertEquals($expected, $query);
+    }
+
     public function testSelectQuery()
     {
         $query = $this->builder->new('test_table_select')
