@@ -76,7 +76,9 @@ class QueryBuilder
         $values = array_values($parameters);
 
         foreach ($values as $key => $value) {
-            if (is_string($value) || is_float($value)) {
+            if ($value === null) {
+                $values[$key] = 'NULL';
+            } elseif (is_string($value) || is_float($value)) {
                 $values[$key] = '"' . $value . '"';
             }
         }
