@@ -91,6 +91,34 @@ class QueryBuilder
     }
 
     /**
+     * Insert/update (replace) a row in a table.
+     *
+     * Important: Make sure that the values are sanitized before using this method!
+     *
+     * @param array $parameters
+     * @return QueryBuilder
+     */
+    public function replaceInto(array $parameters): QueryBuilder
+    {
+        $fields = array_keys($parameters);
+        $values = array_values($parameters);
+
+        foreach ($values as $key => $value) {
+            if (is_string($value) || is_float($value)) {
+                $values[$key] = '"' . $value . '"';
+            }
+        }
+
+        $this->query .= sprintf('REPLACE INTO %s (%s) VALUES (%s)',
+            $this->tableName,
+            implode(', ', $fields),
+            implode(', ', $values)
+        );
+
+        return $this;
+    }
+
+    /**
      * Build the update query with given parameters.
      *
      * Important: Make sure that the values are sanitized before using this method!

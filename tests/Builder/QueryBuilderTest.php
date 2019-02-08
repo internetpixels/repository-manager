@@ -112,6 +112,17 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testReplaceInsertQuery()
+    {
+        $query = $this->builder->new('test_table_insert')
+            ->replaceInto(['name' => 'Test name', 'age' => 25])
+            ->get();
+
+        $expected = 'REPLACE INTO test_table_insert (name, age) VALUES ("Test name", 25)';
+
+        $this->assertEquals($expected, $query);
+    }
+
     public function testInsertQuery()
     {
         $query = $this->builder->new('test_table_insert')
