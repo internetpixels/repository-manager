@@ -20,6 +20,8 @@ class QueryBuilderTest extends TestCase
     public function setUp()
     {
         $this->builder = new QueryBuilder();
+
+        parent::setUp();
     }
 
     public function testReturnTypeNew()
@@ -141,6 +143,28 @@ class QueryBuilderTest extends TestCase
             ->get();
 
         $expected = 'INSERT INTO test_table_insert (name, age, test_column) VALUES ("Test name", 25, NULL)';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testReplaceIntoQuery()
+    {
+        $query = $this->builder->new('test_table_insert')
+            ->replaceInto(['name' => 'Test name', 'age' => 25])
+            ->get();
+
+        $expected = 'REPLACE INTO test_table_insert (name, age) VALUES ("Test name", 25)';
+
+        $this->assertEquals($expected, $query);
+    }
+
+    public function testReplaceInto_WITH_nullValue()
+    {
+        $query = $this->builder->new('test_table_insert')
+            ->replaceInto(['name' => 'Test name', 'age' => 25, 'test_column' => null])
+            ->get();
+
+        $expected = 'REPLACE INTO test_table_insert (name, age, test_column) VALUES ("Test name", 25, NULL)';
 
         $this->assertEquals($expected, $query);
     }
