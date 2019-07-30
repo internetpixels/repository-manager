@@ -192,6 +192,18 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testSelectQuery_WITH_whereIdInCondition()
+    {
+        $query = $this->builder->new('test_table_select')
+            ->select()
+            ->where(['id' => [234, 5, 435, 23]])
+            ->get();
+
+        $expected = 'SELECT * FROM test_table_select WHERE id IN(234,5,435,23)';
+
+        $this->assertEquals($expected, $query);
+    }
+
     public function testSelectQuery_WITH_whereIdCondition_AND_customFields()
     {
         $query = $this->builder->new('test_table_select')

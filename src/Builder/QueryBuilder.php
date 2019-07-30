@@ -165,17 +165,19 @@ class QueryBuilder
         $conditions = [];
 
         foreach ($parameters as $field => $value) {
-            if (is_null($value)) {
+            if (\is_null($value)) {
                 $conditions[] = $field . ' IS NULL';
-            } elseif (is_int($value)) {
+            } elseif (\is_int($value)) {
                 $conditions[] = $field . ' = ' . $value;
+            } elseif (\is_array($value)) {
+                $conditions[] = $field . ' IN(' . \implode(',', $value) . ')';
             } else {
                 $conditions[] = $field . ' = "' . $value . '"';
             }
         }
 
         if (count($conditions) >= 1) {
-            $this->query .= ' WHERE ' . implode(' AND ', $conditions);
+            $this->query .= ' WHERE ' . \implode(' AND ', $conditions);
         }
 
         return $this;
