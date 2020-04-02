@@ -29,24 +29,12 @@ class RepositoryManagerTest extends TestCase
         $this->assertEquals(25, $entity->getAge());
     }
 
-    /**
-     * @expectedException \Exception
-     * @expectedExceptionMessage Entity (fake_new) is not registered!
-     */
     public function testRegisterEntity_WITH_exception()
     {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Entity (fake_new) is not registered!');
+
         $this->assertInstanceOf(FakeEntity::class, EntityFactory::create('fake_new'));
-    }
-
-    /**
-     * @expectedException \TypeError
-     * @expectedExceptionMessage Argument 2 passed to InternetPixels\RepositoryManager\Factories\EntityFactory::register() must implement interface InternetPixels\RepositoryManager\Entities\EntityInterface
-     */
-    public function testRegisterEntity_WITH_exceptionEntityInvalid()
-    {
-        $fakeEntity = new \stdClass();
-
-        EntityFactory::register('fake', $fakeEntity);
     }
 
 

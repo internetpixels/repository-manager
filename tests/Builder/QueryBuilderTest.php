@@ -3,6 +3,7 @@
 namespace InternetPixels\RepositoryManager\Tests\Builder;
 
 use InternetPixels\RepositoryManager\Builder\QueryBuilder;
+use InternetPixels\RepositoryManager\Managers\RepositoryDataManager;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -12,50 +13,42 @@ use PHPUnit\Framework\TestCase;
 class QueryBuilderTest extends TestCase
 {
 
-    /**
-     * @var QueryBuilder
-     */
-    private $builder;
-
-    public function setUp()
-    {
-        $this->builder = new QueryBuilder();
-
-        parent::setUp();
-    }
-
     public function testReturnTypeNew()
     {
-        $query = new QueryBuilder();
+        $query = new QueryBuilder($this->getMockDataManager());
 
-        $this->assertInstanceOf(QueryBuilder::class, $query->new('test'));
+        $this->assertInstanceOf(QueryBuilder::class, $query);
     }
 
     public function testReturnTypeUpdate()
     {
-        $query = new QueryBuilder();
+        $query = new QueryBuilder($this->getMockDataManager());
 
         $this->assertInstanceOf(QueryBuilder::class, $query->new('test')->update(['test' => 12,]));
     }
 
     public function testUpdateQuery_WITH_WhereCondition()
     {
-        $query = $this->builder->new('update_table')
+        $builder = new QueryBuilder($this->getMockDataManager(true));
+
+        $query = $builder->new('update_table')
             ->update([
                 'name' => 'Test name',
                 'age' => 25,
-            ])
+            ], true)
             ->where(['id' => 1])
             ->get();
 
-        $expected = 'UPDATE update_table SET name = "Test name", age = 25 WHERE id = 1';
+        $expected = 'UPDATE update_table SET name = "sanitizedValue", age = sanitizedValue WHERE id = 1';
 
         $this->assertEquals($expected, $query);
     }
 
     public function testUpdateQuery_WITH_nullValue()
     {
-        $query = $this->builder->new('update_table')
+        $builder = new QueryBuilder($this->getMockDataManager());
+
+        $query = $builder->new('update_table')
             ->update([
                 'name' => 'Test name',
                 'age' => 25,
@@ -71,7 +64,8 @@ class QueryBuilderTest extends TestCase
 
     public function testUpdateQuery_WITH_WhereCondition_AND_limit()
     {
-        $query = $this->builder->new('update_table')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('update_table')
             ->update([
                 'name' => 'Test name',
                 'age' => 25,
@@ -87,7 +81,8 @@ class QueryBuilderTest extends TestCase
 
     public function testDeleteQuery_WITH_WhereCondition()
     {
-        $query = $this->builder->new('test_table')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table')
             ->delete()
             ->where(['id' => 1])
             ->limit(1)
@@ -100,7 +95,8 @@ class QueryBuilderTest extends TestCase
 
     public function testDeleteQuery_WITH_WhereCondition_AND_nullValue()
     {
-        $query = $this->builder->new('test_table')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table')
             ->delete()
             ->where([
                 'id' => 1,
@@ -116,7 +112,8 @@ class QueryBuilderTest extends TestCase
 
     public function testReplaceInsertQuery()
     {
-        $query = $this->builder->new('test_table_insert')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
             ->replaceInto(['name' => 'Test name', 'age' => 25])
             ->get();
 
@@ -127,7 +124,8 @@ class QueryBuilderTest extends TestCase
 
     public function testInsertQuery()
     {
-        $query = $this->builder->new('test_table_insert')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
             ->insert(['name' => 'Test name', 'age' => 25])
             ->get();
 
@@ -138,7 +136,8 @@ class QueryBuilderTest extends TestCase
 
     public function testInsertQuery_WITH_nullValue()
     {
-        $query = $this->builder->new('test_table_insert')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
             ->insert(['name' => 'Test name', 'age' => 25, 'test_column' => null])
             ->get();
 
@@ -149,7 +148,8 @@ class QueryBuilderTest extends TestCase
 
     public function testReplaceIntoQuery()
     {
-        $query = $this->builder->new('test_table_insert')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
             ->replaceInto(['name' => 'Test name', 'age' => 25])
             ->get();
 
@@ -160,7 +160,8 @@ class QueryBuilderTest extends TestCase
 
     public function testReplaceInto_WITH_nullValue()
     {
-        $query = $this->builder->new('test_table_insert')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
             ->replaceInto(['name' => 'Test name', 'age' => 25, 'test_column' => null])
             ->get();
 
@@ -171,7 +172,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select()
             ->get();
 
@@ -182,7 +184,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdCondition()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select()
             ->where(['id' => 1])
             ->get();
@@ -194,7 +197,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdInCondition()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select()
             ->where(['id' => [234, 5, 435, 23]])
             ->get();
@@ -206,7 +210,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdCondition_AND_customFields()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select(['id', 'name'])
             ->where(['id' => 1])
             ->get();
@@ -218,7 +223,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdCondition_AND_customFields_AND_orderByName()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select(['id', 'name'])
             ->where(['id' => 1])
             ->order('name')
@@ -231,7 +237,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdCondition_AND_customFields_AND_orderByNameAsc()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select(['id', 'name'])
             ->where(['id' => 1])
             ->order('name', 'ASC')
@@ -244,7 +251,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_jeftJoin()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select(['test_table_select.*', 'test_join.column'])
             ->leftJoin('test_join')
             ->on([
@@ -259,7 +267,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_jeftJoin_AND_onCondition()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select(['test_table_select.*', 'test_join.column'])
             ->leftJoin('test_join')
             ->on([
@@ -275,7 +284,8 @@ class QueryBuilderTest extends TestCase
 
     public function testSelectQuery_WITH_whereIdCondition_AND_limitWithOffset()
     {
-        $query = $this->builder->new('test_table_select')
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_select')
             ->select()
             ->where(['id' => 1])
             ->limitWithOffset(5, 2)
@@ -284,6 +294,26 @@ class QueryBuilderTest extends TestCase
         $expected = 'SELECT * FROM test_table_select WHERE id = 1 LIMIT 2,5';
 
         $this->assertEquals($expected, $query);
+    }
+
+    private function getMockDataManager(bool $withSanitizeMock = false)
+    {
+        if ($withSanitizeMock === true) {
+            $dataManager = $this->getMockBuilder(RepositoryDataManager::class)
+                ->disableOriginalConstructor()
+                ->setMethods(['sanitize'])
+                ->getMock();
+
+            $dataManager->expects($this->atLeastOnce())
+                ->method('sanitize')
+                ->willReturn('sanitizedValue');
+
+            return $dataManager;
+        }
+
+        return $this->getMockBuilder(RepositoryDataManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
 }

@@ -34,19 +34,20 @@ abstract class AbstractRepository
      * AbstractRepository constructor.
      *
      * @param RepositoryDataManager $dataManager
+     * @param bool $throwExceptionForUnexistingEntity
      * @throws \Exception
      */
-    public function __construct(RepositoryDataManager $dataManager)
+    public function __construct(RepositoryDataManager $dataManager, bool $throwExceptionForUnexistingEntity = false)
     {
         $this->dataManager = $dataManager;
 
         // Validate that the entity exists in our entity manger
-        if (EntityFactory::exists($this->entityName) !== true) {
+        if ($throwExceptionForUnexistingEntity === true && EntityFactory::exists($this->entityName) !== true) {
             throw new \Exception(sprintf('Entity (%s) is not registered!', $this->entityName));
         }
 
         if (!$this->queryBuilder instanceof QueryBuilder) {
-            $this->queryBuilder = EntityFactory::createQueryBuilder();
+            $this->queryBuilder = new QueryBuilder($this->dataManager);
         }
     }
 

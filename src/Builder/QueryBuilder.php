@@ -2,6 +2,8 @@
 
 namespace InternetPixels\RepositoryManager\Builder;
 
+use InternetPixels\RepositoryManager\Managers\RepositoryDataManager;
+
 /**
  * Class QueryBuilder
  * @package InternetPixels\RepositoryManager\Builder
@@ -12,12 +14,26 @@ class QueryBuilder
     /**
      * @var string
      */
-    private $query;
+    private string $query;
 
     /**
      * @var string
      */
-    private $tableName;
+    private string $tableName;
+
+    /**
+     * @var RepositoryDataManager
+     */
+    private RepositoryDataManager $dataManager;
+
+    /**
+     * QueryBuilder constructor.
+     * @param RepositoryDataManager $dataManager
+     */
+    public function __construct(RepositoryDataManager $dataManager)
+    {
+        $this->dataManager = $dataManager;
+    }
 
     /**
      * Build a new query
@@ -102,8 +118,8 @@ class QueryBuilder
      */
     public function replaceInto(array $parameters): QueryBuilder
     {
-        $fields = array_keys($parameters);
-        $values = array_values($parameters);
+        $fields = \array_keys($parameters);
+        $values = \array_values($parameters);
 
         foreach ($values as $key => $value) {
             if ($value === null) {
@@ -115,8 +131,8 @@ class QueryBuilder
 
         $this->query .= sprintf('REPLACE INTO %s (%s) VALUES (%s)',
             $this->tableName,
-            implode(', ', $fields),
-            implode(', ', $values)
+            \implode(', ', $fields),
+            \implode(', ', $values)
         );
 
         return $this;
@@ -128,25 +144,34 @@ class QueryBuilder
      * Important: Make sure that the values are sanitized before using this method!
      *
      * @param array $parameters
+     * @param bool $sanitizeFields
      * @return QueryBuilder
      */
-    public function update(array $parameters): QueryBuilder
+    public function update(array $parameters, bool $sanitizeFields = false): QueryBuilder
     {
         $update = [];
 
         foreach ($parameters as $field => $value) {
             if ($value === null) {
                 $update[] = $field . ' = NULL';
-            } elseif (is_string($value) || is_float($value)) {
+            } elseif (\is_string($value) || \is_float($value)) {
+                if ($sanitizeFields === true) {
+                    $value = $this->dataManager->sanitize($value);
+                }
+
                 $update[] = $field . ' = "' . $value . '"';
             } else {
+                if ($sanitizeFields === true) {
+                    $value = $this->dataManager->sanitize($value);
+                }
+
                 $update[] = $field . ' = ' . $value;
             }
         }
 
         $this->query .= sprintf('UPDATE %s SET %s',
             $this->tableName,
-            implode(', ', $update)
+            \implode(', ', $update)
         );
 
         return $this;
