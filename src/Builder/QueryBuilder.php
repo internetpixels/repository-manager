@@ -109,6 +109,44 @@ class QueryBuilder
     }
 
     /**
+     * Insert a bulk row in a table. You need to add rows with the bulkFields() method
+     *
+     * Important: Make sure that the values are sanitized before using this method!
+     *
+     * @param array $fields
+     * @param array $rows
+     * @return QueryBuilder
+     */
+    public function insertBulk(array $fields, array $rows): QueryBuilder
+    {
+        $fields = array_values($fields);
+
+        $this->query .= sprintf('INSERT INTO %s (%s) VALUES ',
+            $this->tableName,
+            implode(', ', $fields)
+        );
+
+        $data = [];
+
+        foreach ($rows as $key => $row) {
+            foreach ($row as $name => $rowValue) {
+                if ($rowValue === null) {
+                    $rows[$key][$name] = 'NULL';
+                } elseif (\is_string($rowValue) || \is_float($rowValue)) {
+                    $rows[$key][$name] = '"' . $rowValue . '"';
+                }
+            }
+
+            $data[] = '(' . \implode(',', $rows[$key]) . ')';
+        }
+
+        $this->query .= \implode(',', $data);
+
+        return $this;
+    }
+
+
+    /**
      * Insert/update (replace) a row in a table.
      *
      * Important: Make sure that the values are sanitized before using this method!
@@ -124,7 +162,7 @@ class QueryBuilder
         foreach ($values as $key => $value) {
             if ($value === null) {
                 $values[$key] = 'NULL';
-            } elseif (is_string($value) || is_float($value)) {
+            } elseif (\is_string($value) || \is_float($value)) {
                 $values[$key] = '"' . $value . '"';
             }
         }

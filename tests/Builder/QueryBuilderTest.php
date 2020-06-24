@@ -146,6 +146,25 @@ class QueryBuilderTest extends TestCase
         $this->assertEquals($expected, $query);
     }
 
+    public function testInsertBulkQuery()
+    {
+        $builder = new QueryBuilder($this->getMockDataManager());
+        $query = $builder->new('test_table_insert')
+            ->insertBulk(
+                ['name', 'age', 'mail_date'],
+                [
+                    ['Peter', 25, null],
+                    ['John', 52, '2020-06-24 10:55:23'],
+                ]
+            )
+            ->get();
+
+        $expected = 'INSERT INTO test_table_insert (name, age, mail_date) VALUES ("Peter",25,NULL),("John",52,"2020-06-24 10:55:23")';
+
+        $this->assertEquals($expected, $query);
+    }
+
+
     public function testReplaceIntoQuery()
     {
         $builder = new QueryBuilder($this->getMockDataManager());
