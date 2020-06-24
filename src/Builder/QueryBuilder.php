@@ -115,9 +115,10 @@ class QueryBuilder
      *
      * @param array $fields
      * @param array $rows
+     * @param array|null $onDuplicate
      * @return QueryBuilder
      */
-    public function insertBulk(array $fields, array $rows): QueryBuilder
+    public function insertBulk(array $fields, array $rows, ?array $onDuplicate = null): QueryBuilder
     {
         $fields = array_values($fields);
 
@@ -141,6 +142,16 @@ class QueryBuilder
         }
 
         $this->query .= \implode(',', $data);
+
+        if (\is_array($onDuplicate) && \count($onDuplicate) >= 1) {
+            $duplicateFields = [];
+
+            foreach ($onDuplicate as $name) {
+                $duplicateFields[] = $name . ' = VALUES(' . $name . ')';
+            }
+
+            $this->query .= ' ON DUPLICATE KEY UPDATE ' . \implode(',', $duplicateFields);
+        }
 
         return $this;
     }
