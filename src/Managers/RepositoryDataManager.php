@@ -40,7 +40,11 @@ class RepositoryDataManager
      */
     public function sanitize($input, $outputType = 'string')
     {
-        $output = $this->mysqli->real_escape_string($input);
+        if ($input === null) {
+            return $input;
+        }
+
+        $output = $this->mysqli->real_escape_string((string)$input);
         if ($outputType === 'string') {
             return (string)$output;
         }
